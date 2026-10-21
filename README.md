@@ -6,9 +6,11 @@ A full-stack, responsive issue management application built with React, Vite, Ta
 
 ## Live Links
 
-- **Frontend Deployment (Vercel)**: `https://your-issue-tracker.vercel.app` *(update with your deployed URL)*
-- **Backend API (Render / Railway)**: `https://your-issue-tracker-api.onrender.com` *(update with your deployed URL)*
-- **GitHub Repository**: `https://github.com/your-username/issue-tracker` *(update with your repo URL)*
+- **Frontend Deployment (Vercel)**: https://issue-tracker-lovat-pi.vercel.app
+- **Backend API (Render)**: https://issue-tracker-g2fy.onrender.com
+- **GitHub Repository**: https://github.com/Deveshpoojary/issue-tracker
+
+
 
 ---
 
