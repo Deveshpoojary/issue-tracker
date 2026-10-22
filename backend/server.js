@@ -5,7 +5,7 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoute");
 const issueRoutes = require("./routes/issueRoute");
-
+const adminRoutes = require("./routes/adminRoute");
 
 const app = express();
 app.use(
@@ -21,6 +21,7 @@ app.use(express.json());
 //routes
 app.use("/api/auth", authRoutes);
 app.use("/api/issues", issueRoutes);
+app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 8080;
 

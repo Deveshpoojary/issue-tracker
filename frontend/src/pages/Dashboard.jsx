@@ -11,6 +11,7 @@ import {
   Edit2,
   Eye,
   X,
+  Shield,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -289,11 +290,22 @@ export default function Dashboard() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {currentUser && (
               <span className="text-xs sm:text-sm text-neutral-600 hidden sm:inline">
                 Signed in as <strong className="text-black font-semibold">{currentUser.name || currentUser.email}</strong>
               </span>
+            )}
+            {currentUser?.role === "admin" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/admin")}
+                className="h-8 gap-1.5 border-black bg-black text-white hover:bg-neutral-800 text-xs font-medium shadow-xs"
+              >
+                <Shield className="h-3.5 w-3.5" />
+                Admin Panel
+              </Button>
             )}
             <Button
               variant="outline"

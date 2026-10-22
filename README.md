@@ -10,13 +10,11 @@ A full-stack, responsive issue management application built with React, Vite, Ta
 - **Backend API (Render)**: https://issue-tracker-g2fy.onrender.com
 - **GitHub Repository**: https://github.com/Deveshpoojary/issue-tracker
 
-
-
 ---
 
 ## Project Overview
 
-Issue Tracker is designed for teams to create, track, prioritize, and collaborate on project issues. It features a minimal black-and-white interface, real-time status counters, task assignment, and comment discussions. Tasks are visible strictly to the creator and the assigned user.
+Issue Tracker is designed for teams to create, track, prioritize, and collaborate on project issues. It features a minimal black-and-white interface, real-time status counters, task assignment, and comment discussions. Tasks are visible strictly to the creator and the assigned user. An admin panel is also included for administrators to view system stats, manage registered users, and oversee all issues.
 
 ---
 
@@ -29,6 +27,7 @@ Issue Tracker is designed for teams to create, track, prioritize, and collaborat
 - **Access Visibility**: Only the creator and the assigned user can view the issue on their dashboard.
 - **Comments Thread**: Real-time comment stream on each issue with author name and timestamp.
 - **Search & Filters**: Real-time search across titles and descriptions with multi-status and priority dropdown filters.
+- **Admin Panel**: Dedicated dashboard for admin accounts showing total users, total issues, open issues, and closed issues, along with user management and global issue management.
 
 ---
 
@@ -46,32 +45,40 @@ Issue Tracker is designed for teams to create, track, prioritize, and collaborat
 issue-tracker/
 ├── backend/
 │   ├── config/
-│   │   └── db.js               # MongoDB connection
+│   │   └── db.js                 # MongoDB connection
 │   ├── middleware/
-│   │   └── authMiddleware.js   # JWT verification middleware
+│   │   ├── authMiddleware.js     # JWT verification middleware
+│   │   └── adminMiddleware.js    # Admin authorization middleware
 │   ├── models/
-│   │   ├── Issue.js            # Issue schema (title, status, priority, comments, users)
-│   │   └── User.js             # User schema (name, email, password)
+│   │   ├── Issue.js              # Issue schema
+│   │   └── User.js               # User schema
 │   ├── routes/
-│   │   ├── authRoute.js        # /signup, /login, /users, /me
-│   │   └── issueRoute.js       # /api/issues CRUD, /assign, /comment, /dashboard/stats
-│   ├── server.js               # Express server entry point
+│   │   ├── adminRoute.js         # /api/admin stats, users, issues
+│   │   ├── authRoute.js          # /signup, /login, /users, /me
+│   │   └── issueRoute.js         # /api/issues CRUD, /assign, /comment, /dashboard/stats
+│   ├── server.js                 # Express server entry point
+│   ├── index.js                  # Entry forwarder
 │   ├── package.json
 │   └── .env.example
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── auth/           # LoginForm.jsx, RegisterForm.jsx
-│   │   │   ├── issues/         # IssueModal.jsx, IssueDetailModal.jsx
-│   │   │   └── ui/             # Reusable button, card, input, label
+│   │   │   ├── admin/            # AdminLayout.jsx
+│   │   │   ├── auth/             # LoginForm.jsx, RegisterForm.jsx
+│   │   │   ├── issues/           # IssueModal.jsx, IssueDetailModal.jsx
+│   │   │   └── ui/               # Reusable button, card, input, label
 │   │   ├── lib/
-│   │   │   └── api.js          # Centralized API service with JWT handling
+│   │   │   └── api.js            # Centralized API service with JWT handling
 │   │   ├── pages/
-│   │   │   ├── Dashboard.jsx   # Main full-screen responsive dashboard
-│   │   │   ├── Login.jsx       # Login page
-│   │   │   └── Register.jsx    # Signup page
-│   │   ├── App.jsx             # Router and ProtectedRoute guards
-│   │   └── index.css           # Global Tailwind styling & theme tokens
+│   │   │   ├── admin/
+│   │   │   │   ├── AdminDashboard.jsx
+│   │   │   │   ├── AdminUsers.jsx
+│   │   │   │   └── AdminIssues.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Login.jsx
+│   │   │   └── Register.jsx
+│   │   ├── App.jsx
+│   │   └── index.css
 │   ├── package.json
 │   ├── vite.config.js
 │   └── .env.example
@@ -96,8 +103,6 @@ JWT_SECRET=your_jwt_secret_key_here
 VITE_API_URL=http://localhost:8080
 ```
 
-*(In production, set `VITE_API_URL` to your deployed backend URL, e.g., `https://your-api.onrender.com`)*
-
 ---
 
 ## Local Setup & Run
@@ -112,7 +117,6 @@ VITE_API_URL=http://localhost:8080
 ```bash
 cd backend
 npm install
-# Create .env file with MONGO_URI and JWT_SECRET
 npm run dev
 ```
 
@@ -123,11 +127,22 @@ Backend runs on `http://localhost:8080`.
 ```bash
 cd ../frontend
 npm install
-# Create .env file with VITE_API_URL
 npm run dev
 ```
 
 Frontend runs on `http://localhost:5173`.
+
+---
+
+## Admin Setup
+
+By default, newly registered users have the `role: "user"`. To designate an admin account, update the user's `role` field to `"admin"` directly in MongoDB:
+
+```javascript
+db.users.updateOne({ email: "user@example.com" }, { $set: { role: "admin" } });
+```
+
+Once a user is an admin, an **Admin Panel** link will appear in their dashboard header, and they can also promote/demote other users directly from the Users page in the admin panel.
 
 ---
 
@@ -142,7 +157,7 @@ Frontend runs on `http://localhost:5173`.
 
 ### Issues (`/api/issues`)
 
-- `GET /api/issues` - Fetch all issues (Protected).
+- `GET /api/issues` - Fetch issues (Protected).
 - `GET /api/issues/dashboard/stats` - Get counts for total, open, in progress, and closed (Protected).
 - `GET /api/issues/:id` - Get specific issue details (Protected).
 - `POST /api/issues` - Create a new issue (`title`, `description`, `status`, `priority`) (Protected).
@@ -150,6 +165,16 @@ Frontend runs on `http://localhost:5173`.
 - `DELETE /api/issues/:id` - Delete an issue (Protected).
 - `POST /api/issues/assign/:id` - Assign issue to a user (`assignedTo`) (Protected).
 - `POST /api/issues/comment/:id` - Add a comment to an issue (`text`) (Protected).
+
+### Admin (`/api/admin`) *(Admin Only)*
+
+- `GET /api/admin/stats` - Total users, total issues, open issues, closed issues.
+- `GET /api/admin/users` - List all registered users.
+- `PATCH /api/admin/users/:id/role` - Update user role (`user` or `admin`).
+- `DELETE /api/admin/users/:id` - Delete user account.
+- `GET /api/admin/issues` - View all issues across the platform.
+- `PUT /api/admin/issues/:id` - Update any issue.
+- `DELETE /api/admin/issues/:id` - Delete any issue.
 
 ---
 
@@ -172,7 +197,7 @@ Frontend runs on `http://localhost:5173`.
    - `MONGO_URI`: Your MongoDB Atlas connection string.
    - `JWT_SECRET`: A secure random secret string.
    - `PORT`: `8080`
-7. Click **Deploy Web Service** and copy the live URL (e.g., `https://issue-tracker-backend.onrender.com`).
+7. Click **Deploy Web Service** and copy the live URL.
 
 ### Step 2: Deploy Frontend (Vercel)
 
@@ -181,10 +206,5 @@ Frontend runs on `http://localhost:5173`.
 3. Set the **Root Directory** to `frontend`.
 4. Framework preset will automatically detect **Vite**.
 5. Under **Environment Variables**, add:
-   - `VITE_API_URL`: Your deployed backend URL from Step 1 (e.g. `https://issue-tracker-backend.onrender.com`).
+   - `VITE_API_URL`: Your deployed backend URL from Step 1.
 6. Click **Deploy**.
-7. Your frontend is live at `https://your-project.vercel.app`.
-
-### Updating the Application
-
-- Any push to the `main` branch on GitHub triggers automatic redeployment on both Vercel and Render.

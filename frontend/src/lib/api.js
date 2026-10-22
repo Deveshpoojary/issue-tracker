@@ -52,6 +52,8 @@ export const api = {
     }),
 
 
+  getMe: () => request("/api/auth/me"),
+
   getUsers: () => request("/api/auth/users"),
 
   // Issues
@@ -96,6 +98,35 @@ export const api = {
     request(`/api/issues/comment/${id}`, {
       method: "POST",
       body: JSON.stringify({ text }),
+    }),
+
+  // Admin Endpoints
+  getAdminStats: () => request("/api/admin/stats"),
+
+  getAdminUsers: () => request("/api/admin/users"),
+
+  updateUserRole: (id, role) =>
+    request(`/api/admin/users/${id}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    }),
+
+  deleteUser: (id) =>
+    request(`/api/admin/users/${id}`, {
+      method: "DELETE",
+    }),
+
+  getAdminIssues: () => request("/api/admin/issues"),
+
+  adminUpdateIssue: (id, issueData) =>
+    request(`/api/admin/issues/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(issueData),
+    }),
+
+  adminDeleteIssue: (id) =>
+    request(`/api/admin/issues/${id}`, {
+      method: "DELETE",
     }),
 };
 
